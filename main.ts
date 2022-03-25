@@ -1,0 +1,75 @@
+import {
+  DocNode,
+  DocNodeInterface,
+  DocNodeNamespace,
+} from "https://raw.githubusercontent.com/denoland/docland/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/deps.ts";
+import { makeDoc } from "https://deno.land/x/deno_dash_doc@v0.2.0/mod.ts";
+import { indexPage } from "./indexPage.tsx";
+
+async function makeDenoDoc(name: string, unstable?: boolean, version?: string) {
+  const data = await fetch(
+    new URL(
+      `${unstable ? "unstable" : "stable"}${version ? `_${version}` : ""}.json`,
+      "https://github.com/denoland/docland/raw/main/static/",
+    ),
+  );
+  const entries = mergeEntries(await data.json());
+  await makeDoc(name, unstable ? "deno/unstable" : "deno/stable", entries);
+}
+
+// Copied from https://github.com/denoland/docland/blob/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/routes/doc.tsx#L153-L192
+function mergeEntries(entries: DocNode[]) {
+  const merged: DocNode[] = [];
+  const namespaces = new Map<string, DocNodeNamespace>();
+  const interfaces = new Map<string, DocNodeInterface>();
+  for (const node of entries) {
+    if (node.kind === "namespace") {
+      const namespace = namespaces.get(node.name);
+      if (namespace) {
+        namespace.namespaceDef.elements.push(...node.namespaceDef.elements);
+        if (!namespace.jsDoc) {
+          namespace.jsDoc = node.jsDoc;
+        }
+      } else {
+        namespaces.set(node.name, node);
+        merged.push(node);
+      }
+    } else if (node.kind === "interface") {
+      const int = interfaces.get(node.name);
+      if (int) {
+        int.interfaceDef.callSignatures.push(
+          ...node.interfaceDef.callSignatures,
+        );
+        int.interfaceDef.indexSignatures.push(
+          ...node.interfaceDef.indexSignatures,
+        );
+        int.interfaceDef.methods.push(...node.interfaceDef.methods);
+        int.interfaceDef.properties.push(...node.interfaceDef.properties);
+        if (!int.jsDoc) {
+          int.jsDoc = node.jsDoc;
+        }
+      } else {
+        interfaces.set(node.name, node);
+        merged.push(node);
+      }
+    } else {
+      merged.push(node);
+    }
+  }
+  return merged;
+}
+
+if (import.meta.main) {
+  await Promise.all(
+    [makeDenoDoc("deno", false), makeDenoDoc("deno", true)],
+  );
+
+  await Deno.writeTextFile(
+    "deno.docset/Contents/Resources/Documents/index.html",
+    indexPage(),
+  );
+  await Deno.copyFile(
+    new URL("Info.plist", import.meta.url),
+    "deno.docset/Contents/Info.plist",
+  );
+}
