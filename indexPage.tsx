@@ -15,14 +15,14 @@ import {
   renderSSR,
   tw,
   virtualSheet,
-} from "https://raw.githubusercontent.com/denoland/docland/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/deps.ts";
-import { gtw } from "https://raw.githubusercontent.com/denoland/docland/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/components/styles.ts";
+} from "https://raw.githubusercontent.com/denoland/docland/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/deps.ts";
+import { gtw } from "https://raw.githubusercontent.com/denoland/docland/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/components/styles.ts";
 import {
   sheet,
   store,
-} from "https://raw.githubusercontent.com/denoland/docland/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/shared.ts";
-import { App } from "https://raw.githubusercontent.com/denoland/docland/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/components/app.tsx";
-import { getBody } from "https://raw.githubusercontent.com/denoland/docland/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/util.ts";
+} from "https://raw.githubusercontent.com/denoland/docland/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/shared.ts";
+import { App } from "https://raw.githubusercontent.com/denoland/docland/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/components/app.tsx";
+import { getBody } from "https://raw.githubusercontent.com/denoland/docland/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/util.ts";
 
 export function indexPage() {
   sheet.reset();

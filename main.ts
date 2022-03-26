@@ -2,8 +2,8 @@ import {
   DocNode,
   DocNodeInterface,
   DocNodeNamespace,
-} from "https://raw.githubusercontent.com/denoland/docland/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/deps.ts";
-import { makeDoc } from "https://deno.land/x/deno_dash_doc@v0.2.0/mod.ts";
+} from "https://raw.githubusercontent.com/denoland/docland/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/deps.ts";
+import { makeDoc } from "https://deno.land/x/deno_dash_doc@v0.2.1/mod.ts";
 import { indexPage } from "./indexPage.tsx";
 
 async function makeDenoDoc(name: string, unstable?: boolean, version?: string) {
@@ -17,7 +17,7 @@ async function makeDenoDoc(name: string, unstable?: boolean, version?: string) {
   await makeDoc(name, unstable ? "deno/unstable" : "deno/stable", entries);
 }
 
-// Copied from https://github.com/denoland/docland/blob/194467fb0412b9f9304e39adc87bc6bbe4ca1c46/routes/doc.tsx#L153-L192
+// Copied from https://github.com/denoland/docland/blob/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/routes/doc.tsx#L153-L192
 function mergeEntries(entries: DocNode[]) {
   const merged: DocNode[] = [];
   const namespaces = new Map<string, DocNodeNamespace>();
