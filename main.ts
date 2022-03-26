@@ -3,7 +3,7 @@ import {
   DocNodeInterface,
   DocNodeNamespace,
 } from "https://raw.githubusercontent.com/denoland/docland/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/deps.ts";
-import { makeDoc } from "https://deno.land/x/deno_dash_doc@v0.2.1/mod.ts";
+import { makeDoc } from "https://deno.land/x/dash_doc@v0.2.1/mod.ts";
 import { indexPage } from "./indexPage.tsx";
 
 async function makeDenoDoc(name: string, unstable?: boolean, version?: string) {
