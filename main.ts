@@ -7,13 +7,22 @@ import { makeDoc } from "https://deno.land/x/deno_dash_doc@v0.2.1/mod.ts";
 import { indexPage } from "./indexPage.tsx";
 
 async function makeDenoDoc(name: string, unstable?: boolean, version?: string) {
+  const error = new Error();
   const data = await fetch(
     new URL(
       `${unstable ? "unstable" : "stable"}${version ? `_${version}` : ""}.json`,
       "https://github.com/denoland/docland/raw/main/static/",
     ),
-  );
-  const entries = mergeEntries(await data.json());
+  ).then((response) => {
+    if (!response.ok) {
+      error.message =
+        `Cannot fetch data of deno version ${version} (${response.status} ${response.statusText})`;
+      throw error;
+    }
+    return response.json();
+  });
+
+  const entries = mergeEntries(data);
   await makeDoc(name, unstable ? "deno/unstable" : "deno/stable", entries);
 }
 
@@ -60,9 +69,16 @@ function mergeEntries(entries: DocNode[]) {
 }
 
 if (import.meta.main) {
-  await Promise.all(
-    [makeDenoDoc("deno", false), makeDenoDoc("deno", true)],
-  );
+  if (Deno.args.length > 0 && !Deno.args[0].startsWith("v")) {
+    console.error("Error: Version specifier must starts with 'v'");
+    Deno.exit(1);
+  }
+
+  const version = Deno.args.length > 0 ? Deno.args[0] : undefined;
+  await Promise.all([
+    makeDenoDoc("deno", false, version),
+    makeDenoDoc("deno", true, version),
+  ]);
 
   await Deno.writeTextFile(
     "deno.docset/Contents/Resources/Documents/index.html",
