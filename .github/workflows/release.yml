@@ -1,0 +1,45 @@
+name: Create release (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      deno_version:
+        description: "Deno version (e.g. v1.20.3)"
+        required: false
+        type: string
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: vx.x.x
+
+      - name: Get versions
+        id: versions
+        run: |
+          echo "::set-output name=deno::v$(echo 'console.log(Deno.version.deno)' | deno run -)"
+          HASH=${{ github.sha }}; echo "::set-output name=generator::${HASH:0:7}"
+
+      - name: Generate a docset
+        run: |
+          deno run --allow-net --allow-write=deno.docset --allow-read=. --no-check main.ts "${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}"
+          tar -cvzf Deno.tgz deno.docset
+
+      - name: Create a tag
+        uses: laputansoft/github-tag-action@v4.6
+        with:
+          github_token: ${{ github.token }}
+          tag: ${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}+${{ steps.versions.outputs.generator }}
+
+      - name: Create a release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.docset_version }}
+          name: ${{ env.docset_version }}
+          files: Deno.tgz
+        env:
+          docset_version: ${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}+${{ steps.versions.outputs.generator }}
