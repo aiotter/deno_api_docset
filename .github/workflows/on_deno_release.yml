@@ -1,0 +1,39 @@
+name: Invoke release creation (on new deno release)
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  deno_update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: vx.x.x
+
+      - name: Get versions
+        id: versions
+        run: |
+          echo "::set-output name=deno::v$(echo 'console.log(Deno.version.deno)' | deno run -)"
+          HASH=${{ github.sha }}; echo "::set-output name=generator::${HASH:0:7}"
+
+      - id: latest_release
+        uses: InsonusK/get-latest-release@v1.0.1
+        with:
+          myToken: ${{ github.token }}
+          exclude_types: draft|prerelease
+          view_top: 1
+
+      - name: Create release
+        uses: octokit/request-action@v2.x
+        with:
+          route: "POST /repos/${{ github.repository }}/actions/workflows/release.yml/dispatches"
+          ref: ${{ github.ref }}
+          inputs: "deno_version: ${{ steps.versions.outputs.deno}}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          ACTIONS_STEP_DEBUG: true
+          if: startsWith(steps.latest_release.outputs.name, steps.versions.outputs.deno)
