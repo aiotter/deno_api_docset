@@ -1,0 +1,49 @@
+name: Create Pull Request
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get release
+        id: get_release
+        uses: cardinalby/git-get-release-action@v1
+        with:
+          latest: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        if: github.event_name == 'workflow_dispatch'
+
+      - uses: actions/checkout@v2
+        with:
+          # repository: Kapeli/Dash-User-Contributions
+          repository: aiotter/Dash-User-Contributions
+
+      - uses: actions/checkout@v2
+        with:
+          ref: pr
+          path: "docsets/Deno"
+
+      - name: Replace template string
+        run: sed -i 's/$VERSION/${{ (steps.get_release.outputs || github.event).name }}/' docsets/Deno/docset.json
+
+      - uses: robinraju/release-downloader@v1.3
+        with:
+          repository: ${{ github.repository }}
+          tag: ${{ (steps.get_release.outputs || github.event).tag_name }}
+          fileName: "Deno.tgz"
+          out-file-path: "docsets/Deno"
+
+      - uses: peter-evans/create-pull-request@v4
+        with:
+          title: Update Deno API docset to ${{ (steps.get_release.outputs || github.event).name }}
+          body: |
+            This is an automated PR.
+            Please report problems on ${{ github.repositoryUrl }}
+          commit-message: Update Deno API docset (${{ (steps.get_release.outputs || github.event).name }})
+          token: ${{ secrets.TOKEN }}
+          # delete-branch: true
