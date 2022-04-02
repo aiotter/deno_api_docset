@@ -42,7 +42,7 @@ jobs:
           title: Update Deno API docset to ${{ steps.get_release.outputs.name || github.event.release.name }}
           body: |
             This is an automated PR.
-            Please report problems on ${{ github.repositoryUrl }}
+            Please report problems on https://github.com/${{ github.repository }}
           commit-message: Update Deno API docset (${{ steps.get_release.outputs.name || github.event.release.name }})
           push-to-fork: aiotter/Dash-User-Contributions
           token: ${{ secrets.TOKEN }}
