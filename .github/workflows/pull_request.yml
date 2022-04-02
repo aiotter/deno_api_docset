@@ -20,8 +20,7 @@ jobs:
 
       - uses: actions/checkout@v2
         with:
-          # repository: Kapeli/Dash-User-Contributions
-          repository: aiotter/Dash-User-Contributions
+          repository: Kapeli/Dash-User-Contributions
 
       - uses: actions/checkout@v2
         with:
@@ -46,4 +45,4 @@ jobs:
             Please report problems on ${{ github.repositoryUrl }}
           commit-message: Update Deno API docset (${{ (steps.get_release.outputs || github.event).name }})
           token: ${{ secrets.TOKEN }}
-          # delete-branch: true
+          delete-branch: true
