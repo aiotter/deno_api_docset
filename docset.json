@@ -1,0 +1,10 @@
+{
+    "name": "Deno",
+    "version": "$VERSION",
+    "archive": "Deno.tgz",
+    "author": {
+        "name": "Yuto Oguchi",
+        "link": "https://github.com/aiotter"
+    },
+    "aliases": ["Deno API"]
+}
