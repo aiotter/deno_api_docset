@@ -28,21 +28,22 @@ jobs:
           path: "docsets/Deno"
 
       - name: Replace template string
-        run: sed -i 's/$VERSION/${{ (steps.get_release.outputs || github.event.release).name }}/' docsets/Deno/docset.json
+        run: sed -i 's/$VERSION/${{ steps.get_release.outputs.name || github.event.release.name }}/' docsets/Deno/docset.json
 
       - uses: robinraju/release-downloader@v1.3
         with:
           repository: ${{ github.repository }}
-          tag: ${{ (steps.get_release.outputs || github.event.release).tag_name }}
+          tag: ${{ steps.get_release.outputs.tag_name || github.event.release.tag_name }}
           fileName: "Deno.tgz"
           out-file-path: "docsets/Deno"
 
       - uses: peter-evans/create-pull-request@v4
         with:
-          title: Update Deno API docset to ${{ (steps.get_release.outputs || github.event.release).name }}
+          title: Update Deno API docset to ${{ steps.get_release.outputs.name || github.event.release.name }}
           body: |
             This is an automated PR.
             Please report problems on ${{ github.repositoryUrl }}
-          commit-message: Update Deno API docset (${{ (steps.get_release.outputs || github.event.release).name }})
+          commit-message: Update Deno API docset (${{ steps.get_release.outputs.name || github.event.release.name }})
+          push-to-fork: aiotter/Dash-User-Contributions
           token: ${{ secrets.TOKEN }}
           delete-branch: true
