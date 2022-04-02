@@ -30,16 +30,17 @@ jobs:
           tar -cvzf Deno.tgz deno.docset
 
       - name: Create a tag
-        uses: laputansoft/github-tag-action@v4.6
+        uses: rickstaa/action-create-tag@v1
         with:
-          github_token: ${{ github.token }}
           tag: ${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}+${{ steps.versions.outputs.generator }}
+          message: "[CI] Automatically tagged via GitHub Actions"
 
       - name: Create a release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.docset_version }}
           name: ${{ env.docset_version }}
+          body: "[CI] Automatically released via GitHub Actions"
           files: Deno.tgz
         env:
           docset_version: ${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}+${{ steps.versions.outputs.generator }}
