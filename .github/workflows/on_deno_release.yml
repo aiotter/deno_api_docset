@@ -20,12 +20,13 @@ jobs:
           echo "::set-output name=deno::v$(echo 'console.log(Deno.version.deno)' | deno run -)"
           HASH=${{ github.sha }}; echo "::set-output name=generator::${HASH:0:7}"
 
-      - id: latest_release
-        uses: InsonusK/get-latest-release@v1.0.1
+      - name: Get latest release
+        uses: octokit/request-action@v2.x
+        id: latest_release
         with:
-          myToken: ${{ github.token }}
-          exclude_types: draft|prerelease
-          view_top: 1
+          route: GET /repos/${{ github.repository }}/releases/latest
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Create release
         uses: octokit/request-action@v2.x
@@ -36,4 +37,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
           ACTIONS_STEP_DEBUG: true
-          if: startsWith(steps.latest_release.outputs.name, steps.versions.outputs.deno)
+        if: "!startsWith(steps.latest_release.outputs.data.name, steps.versions.outputs.deno)"
