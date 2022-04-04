@@ -36,4 +36,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
           ACTIONS_STEP_DEBUG: true
-          if: startsWith(steps.latest_release.outputs.name, steps.versions.outputs.deno)
+        if: "!startsWith(steps.latest_release.outputs.name, steps.versions.outputs.deno)"
