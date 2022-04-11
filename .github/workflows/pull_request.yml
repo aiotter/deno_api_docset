@@ -46,4 +46,5 @@ jobs:
           commit-message: Update Deno API docset (${{ steps.get_release.outputs.name || github.event.release.name }})
           push-to-fork: aiotter/Dash-User-Contributions
           token: ${{ secrets.TOKEN }}
+          branch: deno-api-docset/patch-${{ steps.get_release.outputs.name || github.event.release.name }}
           delete-branch: true
