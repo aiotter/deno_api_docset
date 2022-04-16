@@ -30,10 +30,13 @@ jobs:
           tar -cvzf Deno.tgz deno.docset
 
       - name: Create a tag
-        uses: rickstaa/action-create-tag@v1
-        with:
-          tag: ${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}+${{ steps.versions.outputs.generator }}
-          message: "[CI] Automatically tagged via GitHub Actions"
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag -a "${TAG_NAME}" -m "[CI] Automatically tagged via GitHub Actions"
+          git push --tags
+        env:
+          TAG_NAME: ${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}+${{ steps.versions.outputs.generator }}
 
       - name: Create a release
         uses: softprops/action-gh-release@v1
