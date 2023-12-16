@@ -45,6 +45,5 @@ jobs:
           name: ${{ env.docset_version }}
           body: "[CI] Automatically released via GitHub Actions"
           files: Deno.tgz
-          token: ${{ secrets.TOKEN }}
         env:
           docset_version: ${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}+${{ steps.versions.outputs.generator }}
