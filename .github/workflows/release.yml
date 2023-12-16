@@ -16,7 +16,7 @@ jobs:
 
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: vx.x.x
+          deno-version: ${{ github.event.inputs.deno_version || 'vx.x.x' }}
 
       - name: Get versions
         id: versions
@@ -26,7 +26,7 @@ jobs:
 
       - name: Generate a docset
         run: |
-          deno run --allow-net --allow-write=deno.docset --allow-read=. --no-check main.ts "${{ github.event.inputs.deno_version || steps.versions.outputs.deno }}"
+          deno run --allow-net --allow-write=deno.docset --allow-read --allow-run --no-check main.ts
           tar -cvzf Deno.tgz deno.docset
 
       - name: Create a tag

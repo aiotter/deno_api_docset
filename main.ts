@@ -3,30 +3,34 @@ import {
   DocNodeInterface,
   DocNodeNamespace,
 } from "https://raw.githubusercontent.com/denoland/docland/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/deps.ts";
-import { makeDoc } from "https://deno.land/x/dash_doc@v0.3.1/mod.ts";
-import { indexPage } from "./indexPage.tsx";
+import { makeDoc } from "https://deno.land/x/dash_doc@v0.3.4/mod.ts";
 
-async function makeDenoDoc(name: string, unstable?: boolean, version?: string) {
-  const error = new Error();
-  const data = await fetch(
-    new URL(
-      `${unstable ? "unstable" : "stable"}${version ? `_${version}` : ""}.json`,
-      "https://github.com/denoland/docland/raw/main/static/",
-    ),
-  ).then((response) => {
-    if (!response.ok) {
-      error.message =
-        `Cannot fetch data of deno version ${version} (${response.status} ${response.statusText})`;
-      throw error;
-    }
-    return response.json();
+async function makeDenoDoc(
+  name: string,
+  { unstable = false }: { unstable?: boolean },
+) {
+  const args = ["doc", "--json"];
+  if (unstable) args.push("--unstable");
+
+  const proc = new Deno.Command(Deno.execPath(), { args, stdout: "piped" })
+    .spawn();
+
+  const apiData = await new Response(proc.stdout).json().catch(() => {
+    throw Error(
+      "Usage: deno deno run --allow-write=deno.docset --allow-read=. --no-check main.ts",
+    );
   });
 
-  const entries = mergeEntries(data);
-  await makeDoc(name, unstable ? "deno/unstable" : "deno/stable", entries);
+  const entries = mergeEntries(apiData);
+  await makeDoc(
+    name,
+    // `https://deno.land/api${unstable ? "?unstable" : ""}`,
+    unstable ? "deno/unstable" : "deno/stable",
+    entries,
+  );
 }
 
-// Copied from https://github.com/denoland/docland/blob/ac0404d5af4a7c2bd2159cec3cddb13569c9f4e6/routes/doc.tsx#L153-L192
+// Copied from https://github.com/denoland/docland/blob/d26f2c15e4bedd6b6a6114c3a129d7abdda2e55d/docs.ts#L514-L553
 function mergeEntries(entries: DocNode[]) {
   const merged: DocNode[] = [];
   const namespaces = new Map<string, DocNodeNamespace>();
@@ -69,21 +73,10 @@ function mergeEntries(entries: DocNode[]) {
 }
 
 if (import.meta.main) {
-  if (Deno.args.length > 0 && !Deno.args[0].startsWith("v")) {
-    console.error("Error: Version specifier must starts with 'v'");
-    Deno.exit(1);
-  }
+  console.log(`Creating doc for deno v${Deno.version.deno}`);
 
-  const version = Deno.args.length > 0 ? Deno.args[0] : undefined;
-  await Promise.all([
-    makeDenoDoc("deno", false, version),
-    makeDenoDoc("deno", true, version),
-  ]);
+  await makeDenoDoc("deno", { unstable: true });
 
-  await Deno.writeTextFile(
-    "deno.docset/Contents/Resources/Documents/index.html",
-    indexPage(),
-  );
   await Deno.copyFile(
     new URL("Info.plist", import.meta.url),
     "deno.docset/Contents/Info.plist",
